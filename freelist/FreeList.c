@@ -66,7 +66,7 @@ FullNodeRef allocateFullNode(FreeListRef L, FreeNodeRef fn, int newNodeSize){
     if( fn->nodeSize == newNodeSize + sizeof(FullNode) ) {
 		(fn->prevNode)->nextNode = fn->nextNode;
 		(fn->nextNode)->prevNode = fn->prevNode;
-		if( getFirst(L) == fn ) {
+		if( getFront(L) == fn ) {
 			L->front = fn->nextNode;
 		}
 		L->numFreeNodes--;
@@ -130,43 +130,6 @@ int offEnd(FreeListRef L) {
 		exit(1);
 	}
 	return (L->current==NULL || L->current < L->front || L->current > L->back);
-}
-
-/*
- * atFirst
- * Returns True if current points to the front FreeNodeRef of a valid FreeListRef, false otherwise.
- * Pre: !isFull(L)
- */
-int atFirst(FreeListRef L) {
-	if( L==NULL ) {
-		printf("FreeList Error: calling atFirst() on NULL FreeListRef\n");
-		exit(1);
-	}
-	if( isFull(L) ) {
-		printf("FreeList Error: calling atFirst() on a full FreeListRef\n");
-		exit(1);
-	}
-	if( !offEnd(L) ) {
-		return( L->current==L->front );
-	}
-	return 0;
-}
-
-/*
-*  getFirst
-*  Returns the front FreeNodeRef of L.
-*  Pre: !isFull(L)
-*/
-FreeNodeRef getFirst(FreeListRef L) {
-   if( L==NULL ){
-      printf("FreeList Error: calling getFirst() on NULL FreeListRef\n");
-      exit(1);
-   }
-   if( isFull(L) ){
-      printf("FreeList Error: calling getFirst() on an empty FreeListRef\n");
-      exit(1);
-   }
-   return(L->front);
 }
 
 /*
@@ -264,14 +227,22 @@ void makeFree(FreeListRef L, FullNodeRef fn) {
 		n->prevNode = n;
 		L->front = L->current = n;
 	} else {
-		moveFirst(L);
-		FreeNodeRef cur = getCurrent(L);
+		FreeNodeRef cur = getFront(L);
 		while(cur < fn && cur != cur->nextNode) {
-			moveNext(L);
-			cur = getCurrent(L);
+			cur = cur->nextNode;
 		}
-		if( cur + sizeof(FreeNode) + cur->nodeSize == fn){ /*if current is immediately to the left of fullnode, merge*/
+		if(cur > fn)
+			cur = cur->prevNode;
+		if( (int)cur + cur->nodeSize == fn){ /*if current is immediately to the left of fullnode, merge*/
 			cur->nodeSize += sizeof(FullNode) + fn->nodeSize;
+			if((int)cur + cur->nodeSize == cur->nextNode) { /*if merging makes new free node adjacent to next free node, merge those two*/
+				cur->nodeSize += (cur->nextNode)->nodeSize;
+				if(cur->nextNode == (cur->nextNode)->nextNode) /*we on the edge*/
+					cur->nextNode = cur;
+				else
+					cur->nextNode = (cur->nextNode)->nextNode;
+				L->numFreeNodes--;
+			}
 		} else if( fn + sizeof(FullNode) + fn->nodeSize == cur){ /*if current is immediately to the right of fullnode, merge*/
 			FreeNodeRef n = newFreeNode(sizeof(FullNode) + fn->nodeSize + sizeof(FreeNode) + cur->nodeSize, fn);
 			n->prevNode = cur->prevNode;
@@ -383,11 +354,12 @@ void printFreeList(FreeListRef L){
       printf("FreeList Error: calling printList() on NULL ListRef\n");
       exit(1);
    }
-   printf("(prev, next, nodeSize): ");
+   printf("Printing all %d free nodes in L...\n", L->numFreeNodes);
+   printf("(node: size, prev, next): ");
    int nFN = L->numFreeNodes;
    int i;
    for(i=0, N=L->front; i<nFN; i++, N=N->nextNode) {
-		printf("(%d, %d, %d) ", N->prevNode, N->nextNode, N->nodeSize);
+		printf("(%d: %d, %d, %d) ", N, N->nodeSize, N->prevNode, N->nextNode);
    }
    
    printf("\n");

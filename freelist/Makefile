@@ -8,13 +8,13 @@
 #	gcc -c -ansi -Wall FreeListMMU.c
 	
 FreeListTest : FreeListTest.o FreeList.o
-	gcc -o FreeListTest FreeListTest.o FreeList.o
+	gcc -w -o FreeListTest FreeListTest.o FreeList.o
 
 FreeListTest.o : FreeListTest.c FreeList.h
-	gcc -c -ansi -Wall FreeListTest.c
+	gcc -w -c -ansi -Wall FreeListTest.c
 	
 FreeList.o : FreeList.c FreeList.h
-	gcc -c -ansi -Wall FreeList.c
+	gcc -w -c -ansi -Wall FreeList.c
 	
 clean :
 	rm -f FreeListTest *.o

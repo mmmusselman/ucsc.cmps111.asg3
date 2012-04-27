@@ -17,7 +17,7 @@ typedef struct FullNode* FullNodeRef;
 
 /*
 *  newFreeNode
-*  Returns pointer to new FreeNode struct.
+*  Returns pointer to new FreeNode struct at location.
 *  Don't forget to set nextNode & prevNode!!!
 */
 FreeNodeRef newFreeNode(int newNodeSize, void *location);
@@ -42,6 +42,7 @@ FullNodeRef allocateFullNode(FreeListRef L, FreeNodeRef fn, int newNodeSize);
 FreeListRef newFreeList(int nbytes, int newMode);
 
 
+
 /***************** Access functions ***********************************************/
 
 
@@ -56,20 +57,6 @@ int isFull(FreeListRef L);
  * Returns True if current points to an invalid FreeNodeRef, false otherwise.
  */
 int offEnd(FreeListRef L);
-
-/*
- * atFirst
- * Returns True if current points to the front FreeNodeRef of a valid FreeListRef, false otherwise.
- * Pre: !isFull(L)
- */
-int atFirst(FreeListRef L);
-
-/*
-*  getFirst
-*  Returns the front FreeNodeRef of L.
-*  Pre: !isFull(L)
-*/
-FreeNodeRef getFirst(FreeListRef L);
 
 /*
  * getFront
@@ -114,6 +101,7 @@ int getMode(FreeListRef L);
 /*
  * makeFree
  * makes FullNodeRef memory block part of a FreeNodeRef, appropriately merging adjacent FreeNodes
+ * precondition: fn is a fullnode (not part of a freenode, u asshole)
  */
 void makeFree(FreeListRef L, FullNodeRef fn);
 

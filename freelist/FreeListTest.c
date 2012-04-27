@@ -30,6 +30,8 @@ int main(int argc, char* argv[]) {
 	printf("Call makeFree(L, F2)\n");
 	makeFree(L, F2);
 	printFreeList(L);
-
+	printf("Call makeFree(L, F0)\n");
+	makeFree(L, F0);
+	printFreeList(L);
    return(0);
 }
