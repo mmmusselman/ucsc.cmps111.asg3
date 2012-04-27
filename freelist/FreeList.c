@@ -35,6 +35,7 @@ typedef struct FreeList{
 /*
 *  newFreeNode
 *  Returns pointer to new FreeNode struct.
+*  Don't forget to set nextNode & prevNode!!!
 */
 FreeNodeRef newFreeNode(int newNodeSize, void *location){
    FreeNodeRef N = location;
@@ -243,6 +244,8 @@ void makeFree(FreeListRef L, FullNodeRef fn) {
 	if( L->numFreeNodes==0 ){
 		L->numFreeNodes = 1;
 		FreeNodeRef n = newFreeNode(sizeof(FullNode) + fn->nodeSize, fn);
+		n->nextNode = n;
+		n->prevNode = n;
 		L->front = L->current = n;
 	} else {
 		moveFirst(L);
@@ -355,8 +358,10 @@ void printFreeList(FreeListRef L){
       exit(1);
    }
    printf("(prev, next, nodeSize): ");
-   for(N = L->front; N != (N = N->nextNode); ){
-      printf("(%d, %d, %d) ", N->prevNode, N->nextNode, N->nodeSize);
-   }
+   N = L->front;
+   do {
+		printf("(%d, %d, %d) ", N->prevNode, N->nextNode, N->nodeSize);
+   } while(N != N->nextNode);
+   
    printf("\n");
 }

@@ -10,5 +10,9 @@
 
 int main(int argc, char* argv[]) {
 
+	FreeListRef L = newFreeList(1024, 12);
+	
+	printFreeList(L);
+
    return(0);
 }

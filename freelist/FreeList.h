@@ -18,6 +18,7 @@ typedef struct FullNode* FullNodeRef;
 /*
 *  newFreeNode
 *  Returns pointer to new FreeNode struct.
+*  Don't forget to set nextNode & prevNode!!!
 */
 FreeNodeRef newFreeNode(int newNodeSize, void *location);
 
