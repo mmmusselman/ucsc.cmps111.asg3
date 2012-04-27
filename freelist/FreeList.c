@@ -265,19 +265,13 @@ void makeFree(FreeListRef L, FullNodeRef fn) {
 	} else {
 		moveFirst(L);
 		FreeNodeRef cur = getCurrent(L);
-printf("cur = %d\n", cur);
 		while(cur < fn && cur != cur->nextNode) {
 			moveNext(L);
 			cur = getCurrent(L);
 		}
-printf("cur = %d\n", cur);
-printf("cur + sizeof(FreeNode) + cur->nodeSize = %d\n", cur + sizeof(FreeNode) + cur->nodeSize);
-printf("fn = %d\n", fn);
 		if( cur + sizeof(FreeNode) + cur->nodeSize == fn){ /*if current is immediately to the left of fullnode, merge*/
-printf("*****0*****\n");
 			cur->nodeSize += sizeof(FullNode) + fn->nodeSize;
 		} else if( fn + sizeof(FullNode) + fn->nodeSize == cur){ /*if current is immediately to the right of fullnode, merge*/
-printf("*****1*****\n");
 			FreeNodeRef n = newFreeNode(sizeof(FullNode) + fn->nodeSize + sizeof(FreeNode) + cur->nodeSize, fn);
 			n->prevNode = cur->prevNode;
 			n->nextNode = cur->nextNode;
@@ -285,7 +279,6 @@ printf("*****1*****\n");
 				L->front = L->current = n;
 			}
 		} else { /*cur and fn are not adjacent*/
-printf("*****2*****\n");
 			FreeNodeRef n = newFreeNode(sizeof(FullNode) + fn->nodeSize, fn);
 			if(cur < fn) { /*Made new node on the right*/
 				if(cur == cur->nextNode) { /*New node is last FreeNode*/
@@ -390,10 +383,11 @@ void printFreeList(FreeListRef L){
       exit(1);
    }
    printf("(prev, next, nodeSize): ");
-   N = L->front;
-   do {
+   int nFN = L->numFreeNodes;
+   int i;
+   for(i=0, N=L->front; i<nFN; i++, N=N->nextNode) {
 		printf("(%d, %d, %d) ", N->prevNode, N->nextNode, N->nodeSize);
-   } while(N != N->nextNode);
+   }
    
    printf("\n");
 }
