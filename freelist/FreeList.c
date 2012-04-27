@@ -246,6 +246,7 @@ int getMode(FreeListRef L){
 /*
  * makeFree
  * makes FullNodeRef memory block part of a FreeNodeRef, appropriately merging adjacent FreeNodes
+ * precondition: fn is a fullnode (not part of a freenode, u asshole)
  */
 void makeFree(FreeListRef L, FullNodeRef fn) {
 	if( L==NULL ){

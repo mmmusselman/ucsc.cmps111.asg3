@@ -27,6 +27,9 @@ int main(int argc, char* argv[]) {
 	printf("Call makeFree(L, F1)\n");
 	makeFree(L, F1);
 	printFreeList(L);
+	printf("Call makeFree(L, F2)\n");
+	makeFree(L, F2);
+	printFreeList(L);
 
    return(0);
 }
