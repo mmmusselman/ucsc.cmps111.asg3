@@ -1,17 +1,20 @@
 # Makefile for Programming Assignment 5
 # Matthew Musselman (W1202889)
 
-FreeListMMUTest : FreeList.o FreeListMMU.o
-	gcc -o FreeListMMUTest FreeList.o FreeListMMU.o
+#FreeListMMUTest : FreeList.o FreeListMMU.o
+#	gcc -o FreeListMMUTest FreeList.o FreeListMMU.o
 
-FreeListMMU.o : FreeListMMU.c FreeListMMU.h FreeList.h
-	gcc -c -ansi -Wall FreeListMMU.c
+#FreeListMMU.o : FreeListMMU.c FreeListMMU.h FreeList.h
+#	gcc -c -ansi -Wall FreeListMMU.c
 	
-FreeListTest : FreeList.o
-	gcc -o FreeListTest FreeList.o
+FreeListTest : FreeListTest.o FreeList.o
+	gcc -o FreeListTest FreeListTest.o FreeList.o
+
+FreeListTest.o : FreeListTest.c FreeList.h
+	gcc -c -ansi -Wall FreeListTest.c
 	
 FreeList.o : FreeList.c FreeList.h
 	gcc -c -ansi -Wall FreeList.c
 	
 clean :
-	rm -f FreeListMMUTest *.o
+	rm -f FreeListTest *.o

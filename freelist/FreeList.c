@@ -151,14 +151,14 @@ int atFirst(FreeListRef L) {
 /*
 *  getFirst
 *  Returns the front FreeNodeRef of L.
-*  Pre: !isEmpty(L)
+*  Pre: !isFull(L)
 */
 FreeNodeRef getFirst(FreeListRef L) {
    if( L==NULL ){
       printf("FreeList Error: calling getFirst() on NULL FreeListRef\n");
       exit(1);
    }
-   if( isEmpty(L) ){
+   if( isFull(L) ){
       printf("FreeList Error: calling getFirst() on an empty FreeListRef\n");
       exit(1);
    }
@@ -180,14 +180,14 @@ int getBack(FreeListRef L) {
 /*
  * getCurrent
  * Returns the current FreeNodeRef of L.
- * Pre: !isEmpty(L)
+ * Pre: !isFull(L)
  */
 int getCurrent(FreeListRef L) {
 	if( L==NULL ){
 		printf("FreeList Error: calling getCurrent() on a NULL FreeListRef\n");
 		exit(1);
 	}
-	if( isEmpty(L) ){
+	if( isFull(L) ){
 		printf("FreeList Error: calling getCurrent() on an empty FreeListRef\n");
 		exit(1);
 	}
@@ -276,14 +276,14 @@ void makeFree(FreeListRef L, FullNodeRef fn) {
 /*
  * moveFirst
  * Sets current of L to front
- * Pre: !isEmpty(L)
+ * Pre: !isFull(L)
  */
 void moveFirst(FreeListRef L) {
 	if( L==NULL ){
 		printf("FreeList Error: calling moveFirst() on a NULL FreeListRef\n");
 		exit(1);
 	}
-	if( isEmpty(L) ){
+	if( isFull(L) ){
 		printf("FreeList Error: calling moveFirst() on an empty FreeListRef\n");
 		exit(1);
 	}
@@ -294,14 +294,14 @@ void moveFirst(FreeListRef L) {
  * movePrev
  * Sets current of L to the FreeNodeRef previous of current.
  * L->current will point to same FreeNodeRef as before if at beginning of list
- * Pre: !isEmpty(L) && !offEnd(L)
+ * Pre: !isFull(L) && !offEnd(L)
  */
 void movePrev(FreeListRef L) {
 	if( L==NULL ){
 		printf("FreeList Error: calling movePrev() on a NULL FreeListRef\n");
 		exit(1);
 	}
-	if( isEmpty(L) ){
+	if( isFull(L) ){
 		printf("FreeList Error: calling movePrev() on an empty FreeListRef\n");
 		exit(1);
 	}
@@ -320,14 +320,14 @@ void movePrev(FreeListRef L) {
  * moveNext
  * Sets current of L to the FreeNodeRef after current.
  * L->current will point to same FreeNodeRef as before if at end of list.
- * Pre: !isEmpty(L) && !offEnd(L)
+ * Pre: !isFull(L) && !offEnd(L)
  */
 void moveNext(FreeListRef L) {
 	if( L==NULL ){
 		printf("FreeList Error: calling moveNext() on a NULL FreeListRef\n");
 		exit(1);
 	}
-	if( isEmpty(L) ){
+	if( isFull(L) ){
 		printf("FreeList Error: calling moveNext() on an empty FreeListRef\n");
 		exit(1);
 	}

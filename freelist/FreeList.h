@@ -66,7 +66,7 @@ int atFirst(FreeListRef L);
 /*
 *  getFirst
 *  Returns the front FreeNodeRef of L.
-*  Pre: !isEmpty(L)
+*  Pre: !isFull(L)
 */
 FreeNodeRef getFirst(FreeListRef L);
 
@@ -79,7 +79,7 @@ int getBack(FreeListRef L);
 /*
  * getCurrent
  * Returns the current FreeNodeRef of L.
- * Pre: !isEmpty(L)
+ * Pre: !isFull(L)
  */
 int getCurrent(FreeListRef L);
 
@@ -113,7 +113,7 @@ void makeFree(FreeListRef L, FullNodeRef fn);
 /*
  * moveFirst
  * Sets current of L to front
- * Pre: !isEmpty(L)
+ * Pre: !isFull(L)
  */
 void moveFirst(FreeListRef L);
 
@@ -121,7 +121,7 @@ void moveFirst(FreeListRef L);
  * movePrev
  * Sets current of L to the FreeNodeRef previous of current.
  * L->current will point to same FreeNodeRef as before if at beginning of list
- * Pre: !isEmpty(L) && !offEnd(L)
+ * Pre: !isFull(L) && !offEnd(L)
  */
 void movePrev(FreeListRef L);
 
@@ -129,7 +129,7 @@ void movePrev(FreeListRef L);
  * moveNext
  * Sets current of L to the FreeNodeRef after current.
  * L->current will point to same FreeNodeRef as before if at end of list.
- * Pre: !isEmpty(L) && !offEnd(L)
+ * Pre: !isFull(L) && !offEnd(L)
  */
 void moveNext(FreeListRef L);
 
