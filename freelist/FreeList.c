@@ -93,7 +93,10 @@ FullNodeRef allocateFullNode(FreeListRef L, FreeNodeRef fn, int newNodeSize){
 FreeListRef newFreeList(int nbytes, int newMode){
    FreeListRef L;
    L = malloc(sizeof(FreeList) + nbytes);
-   L->current = L->front = L;
+   FreeNodeRef N = newFreeNode(nbytes, L + sizeof(FreeList));
+   N->prevNode = N;
+   N->nextNode = N;
+   L->current = L->front = N;
    L->numFreeNodes = 1;
    L->mode = newMode;
    L->back = L + sizeof(FreeList) + nbytes - 1;
