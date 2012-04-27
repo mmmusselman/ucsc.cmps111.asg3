@@ -11,18 +11,20 @@
 int main(int argc, char* argv[]) {
 
 	FreeListRef L = newFreeList(1024, 12);
-	printf("L=%d\n", L);
-	printf("2*sizeof(FreeNodeRef)+sizeof(char*)+2*sizeof(int)=%d\n", 2*sizeof(FreeNodeRef)+sizeof(char*)+2*sizeof(int));
+	printf("L=newFreeList(1024, 12)=%d\n", L);
+	printf("getFront(L)=%d\n", getFront(L));
+	printf("getBack(L)=%d\n", getBack(L));
 	printFreeList(L);
 	FreeNodeRef F0 = allocateFullNode(L, getFront(L), 512);
-	printf("F0=%d\n", F0);
+	printf("F0=allocateFullNode(L, getFront(L), 512)=%d\n", F0);
 	printFreeList(L);
 	FullNodeRef F1 = allocateFullNode(L, getFront(L), 8);
-	printf("F1=%d\n", F1);
+	printf("F1=allocateFullNode(L, getFront(L), 8)=%d\n", F1);
 	printFreeList(L);
 	FullNodeRef F2 = allocateFullNode(L, getFront(L), 8);
-	printf("F2=%d\n", F2);
+	printf("F2=allocateFullNode(L, getFront(L), 8)=%d\n", F2);
 	printFreeList(L);
+	printf("Call makeFree(L, F1)\n");
 	makeFree(L, F1);
 	printFreeList(L);
 

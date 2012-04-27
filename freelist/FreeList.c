@@ -34,7 +34,7 @@ typedef struct FreeList{
 
 /*
 *  newFreeNode
-*  Returns pointer to new FreeNode struct.
+*  Returns pointer to new FreeNode struct at location.
 *  Don't forget to set nextNode & prevNode!!!
 */
 FreeNodeRef newFreeNode(int newNodeSize, void *location){
@@ -70,13 +70,13 @@ FullNodeRef allocateFullNode(FreeListRef L, FreeNodeRef fn, int newNodeSize){
 			L->front = fn->nextNode;
 		}
 		L->numFreeNodes--;
+		fn->nodeSize = 0;
 	} else {
 		fn->nodeSize -= newNodeSize + sizeof(FullNode);
 	}
-	FullNodeRef N = fn + fn->nodeSize;
+	FullNodeRef N = ((int)fn) + fn->nodeSize;
 	memset(N, 0, sizeof(FullNode)+N->nodeSize);
 	N->nodeSize = newNodeSize;
-	
 	return N;
 }
 
@@ -93,16 +93,13 @@ FullNodeRef allocateFullNode(FreeListRef L, FreeNodeRef fn, int newNodeSize){
 FreeListRef newFreeList(int nbytes, int newMode){
    FreeListRef L;
    L = malloc(sizeof(FreeList) + nbytes);
-printf("L=%d\n", L);
-   FreeNodeRef N = newFreeNode(nbytes, L + sizeof(FreeList));
-printf("N=%d\n", N);
-printf("sizeof(FreeList)=%d\n", sizeof(FreeList));
+   FreeNodeRef N = newFreeNode(nbytes, ((int)L) + sizeof(FreeList));
    N->prevNode = N;
    N->nextNode = N;
    L->current = L->front = N;
    L->numFreeNodes = 1;
    L->mode = newMode;
-   L->back = L + sizeof(FreeList) + nbytes - 1;
+   L->back = ((int)L) + sizeof(FreeList) + nbytes - 1;
    return(L);
 }
 
