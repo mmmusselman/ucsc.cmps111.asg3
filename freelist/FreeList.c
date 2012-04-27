@@ -170,6 +170,18 @@ FreeNodeRef getFirst(FreeListRef L) {
 }
 
 /*
+ * getFront
+ * Returns pointer to the first FreeNode of L
+ */
+FreeNodeRef getFront(FreeListRef L) {
+	if( L==NULL ){
+		printf("FreeList Error: calling getFront() on NULL FreeListRef\n");
+		exit(1);
+	}
+	return(L->front);
+}
+
+/*
  * getBack
  * Returns pointer to the last byte of L.
  */

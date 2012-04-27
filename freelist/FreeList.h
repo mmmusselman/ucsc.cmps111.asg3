@@ -72,6 +72,12 @@ int atFirst(FreeListRef L);
 FreeNodeRef getFirst(FreeListRef L);
 
 /*
+ * getFront
+ * Returns pointer to the first FreeNode of L
+ */
+FreeNodeRef getFront(FreeListRef L);
+
+/*
  * getBack
  * Returns pointer to the last byte of L.
  */
