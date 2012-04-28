@@ -1,14 +1,14 @@
 TEXSRC      =   asg3_dd.tex
 TEXPDF      =   ${TEXSRC:.tex=.pdf}
 LIBFILE     =   libmem.a
-CSOURCES    =   memalloc.c buddy.c
-CHEADERS    =   buddy.h
+CSOURCES    =   memalloc.c buddy.c FreeList.c FreeListMMU.c
+CHEADERS    =   buddy.h FreeList.h FreeListMMU.h
 COBJECTS    =   ${CSOURCES:.c=.o}
 TESTSRCS    =   buddy_test.c
 TESTEXES    =   ${TESTSRCS:.c=}
 TARFILE     =   proj3.tar
 
-all : ${LIBFILE} ${TEXPDF} ${TESTEXES}
+all : ${LIBFILE} ${TESTEXES}
 
 ${TESTEXES} : ${TESTSRCS} ${LIBFILE}
 	gcc -o $@ $< -L. -lmem

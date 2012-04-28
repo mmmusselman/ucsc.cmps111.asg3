@@ -1,3 +1,4 @@
+#include "FreeListMMU.h"
 #include "buddy.h"
 #include <stdio.h>
 #include <stdlib.h>
@@ -21,9 +22,15 @@ int meminit(long n_bytes, unsigned int flags, int parm1, int *parm2)
             break;
         // Slab allocator
         case 0x2: 
+			break;
         // Free-list allocator
         case 0x4: case 0x4 | 0x08:  case 0x4 | 0x10: case 0x4 | 0x18:
-            ((int *)alloc_array[curr_id])[0] = flags; break;
+			alloc_array[curr_id] = freelistinit(n_bytes, flags);
+			if (alloc_array[curr_id] == NULL) {
+				fprintf(stderr, "freelist allocator could not be initialized\n");
+				return -1;
+			}
+			break;
         default: fprintf(stderr, "invalid flag\n"); return -1;
     }
     
@@ -58,7 +65,7 @@ void *memalloc(int handle, long n_bytes)
         case 0x2:
             break;
         case 0x4: case 0x4 | 0x08: case 0x4 | 0x10: case 0x4 | 0x18:
-            break;
+            return freelistalloc(alloc_array[real_id], flag, n_bytes); break;
         default: fprintf(stderr, "invalid flag\n");
     }
     return NULL;
@@ -89,7 +96,7 @@ void memfree(void *region)
         case 0x2:
             break;
         case 0x4: case 0x4 | 0x08: case 0x4 | 0x10: case 0x4 | 0x18:
-            break;
+            freelistfree(alloc_array[alloc_id], region); break;
         default: fprintf(stderr, "invalid flag\n"); 
     }
     printf("\n");
