@@ -24,6 +24,7 @@ void *freelistalloc(char *mem, int flag, long n_bytes) {
 	FreeListRef L = mem;
 	FreeNodeRef cur;
 	void *returnPtr;
+	returnPtr = NULL;
 	if(isFull(L)) {
 		printf("FreeListMMU Error: Calling *freelistalloc() on a Full FreeList!\n");
 		exit(1);
@@ -41,9 +42,32 @@ void *freelistalloc(char *mem, int flag, long n_bytes) {
 				}
 				moveNext(L);
 			} while(! atLast(L));
+			if (returnPtr == NULL) {
+				printf("FreeListMMU Error: calling *freelistalloc() on an allocator with insufficient free memory!\n");
+				exit(1);
+			}
 			break;
 		case 0x4 | 0x10: /*best-fit*/
 			printf("best-fit!\n");
+			FreeNodeRef best = NULL;
+			moveFirst(L);
+			do {
+				cur = getCurrent(L);
+				if(getFreeNodeSize(cur) == n_bytes + sizeof(int))/*found perfect node!*/
+					return sizeof(int) + (int)allocateFullNode(L, cur, n_bytes);
+				else if(getFreeNodeSize(cur) > n_bytes+sizeof(int)) {
+					if(best == NULL)
+						best = cur;
+					else if(getFreeNodeSize(best) > getFreeNodeSize(cur))
+						best = cur;
+				}
+				moveNext(L);
+			} while(! atLast(L));
+			if(best == NULL) {
+				printf("FreeListMMU Error: calling *freelistalloc() on an allocator with insufficient free memory!\n");
+				exit(1);
+			}
+			returnPtr = sizeof(int) + (int)allocateFullNode(L, best, n_bytes);
 			break;
 		case 0x4 | 0x18: /*worst-fit*/
 			printf("worst-fit!\n");
