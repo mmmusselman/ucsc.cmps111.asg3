@@ -80,7 +80,7 @@ FullNodeRef allocateFullNode(FreeListRef L, FreeNodeRef fn, int newNodeSize){
 		}
 	}
 	FullNodeRef N = ((int)fn) + fn->nodeSize;
-	memset(N, 0, sizeof(FullNode)+N->nodeSize);
+	/*memset(N, 0, sizeof(FullNode)+N->nodeSize); DOING THIS IN FREELISTMMU.C INSTEAD*/
 	N->nodeSize = newNodeSize;
 	return N;
 }

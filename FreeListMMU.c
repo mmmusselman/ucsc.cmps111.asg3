@@ -31,7 +31,6 @@ void *freelistalloc(char *mem, int flag, long n_bytes) {
 	}
 	switch(flag) {
 		case 0x4: /*first-fit*/
-			printf("first-fit!\n");
 			moveFirst(L);
 		case 0x4 | 0x8: /*next-fit*/
 			do {
@@ -69,7 +68,6 @@ void *freelistalloc(char *mem, int flag, long n_bytes) {
 			returnPtr = sizeof(int) + (int)allocateFullNode(L, best, n_bytes);
 			break;
 		case 0x4 | 0x18: /*worst-fit*/
-			printf("worst-fit!\n");
 			moveFirst(L);
 			FreeNodeRef worst = NULL;
 			do {
@@ -89,6 +87,7 @@ void *freelistalloc(char *mem, int flag, long n_bytes) {
 			returnPtr = sizeof(int) + (int)allocateFullNode(L, worst, n_bytes);
 			break;
 	}
+	memset(returnPtr, 0, n_bytes);
 	return returnPtr;
 }
 
