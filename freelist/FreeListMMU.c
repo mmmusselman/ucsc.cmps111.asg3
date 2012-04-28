@@ -43,6 +43,6 @@ void *freelistalloc(char *mem, int flag, long n_bytes) {
 *	freelistfree
 */
 void freelistfree(char *mem, int address) {
-	return;
+	makeFree(L, address-4);
 }
 
