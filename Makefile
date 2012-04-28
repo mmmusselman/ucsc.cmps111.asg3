@@ -4,7 +4,7 @@ LIBFILE     =   libmem.a
 CSOURCES    =   memalloc.c buddy.c FreeList.c FreeListMMU.c
 CHEADERS    =   buddy.h FreeList.h FreeListMMU.h
 COBJECTS    =   ${CSOURCES:.c=.o}
-TESTSRCS    =   buddy_test.c
+TESTSRCS    =   buddy_test.c performanceTest.c
 TESTEXES    =   ${TESTSRCS:.c=}
 TARFILE     =   proj3.tar
 
