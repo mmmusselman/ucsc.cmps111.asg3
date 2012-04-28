@@ -22,6 +22,8 @@ void *freelistinit(long n_bytes, unsigned int flags) {
 */
 void *freelistalloc(char *mem, int flag, long n_bytes) {
 	FreeListRef L = mem;
+	FreeNodeRef cur;
+	void *returnPtr;
 	if(isFull(L)) {
 		printf("FreeListMMU Error: Calling *freelistalloc() on a Full FreeList!\n");
 		exit(1);
@@ -29,10 +31,15 @@ void *freelistalloc(char *mem, int flag, long n_bytes) {
 	switch(flag) {
 		case 0x4: /*first-fit*/
 			printf("first-fit!\n");
-			FreeNodeRef cur = getFront(L);
-			while(! atLast(L)) {
+			moveFirst(L);
+			do {
+				cur = getCurrent(L);
+				if(getFreeNodeSize(cur) >= n_bytes+sizeof(int)) {
+					returnPtr = sizeof(int) + (int)allocateFullNode(L, cur, n_bytes);
+					break;
+				}
 				moveNext(L);
-			}
+			} while(! atLast(L));
 			break;
 		case 0x4 | 0x08: /*next-fit*/
 			printf("next-fit!\n");
@@ -44,7 +51,7 @@ void *freelistalloc(char *mem, int flag, long n_bytes) {
 			printf("worst-fit!\n");
 			break;
 	}
-	return NULL;
+	return returnPtr;
 }
 
 /*

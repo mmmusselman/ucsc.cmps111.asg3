@@ -10,6 +10,13 @@
 
 int main(int argc, char* argv[]) {
 	void *allocator = freelistinit(1024, 0x4);
+	printf("allocator=%d\n", allocator);
+	printFreeList(allocator);
 	void *region1 = freelistalloc(allocator, 0x4, 512);
+	printf("region1=%d\n", region1);
+	printFreeList(allocator);
+	printf("calling freelistfree(allocator, (int)region1)...\n");
+	freelistfree(allocator, (int)region1);
+	printFreeList(allocator);
    return(0);
 }

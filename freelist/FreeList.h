@@ -26,6 +26,7 @@ FreeNodeRef newFreeNode(int newNodeSize, void *location);
 *  allocateFullNode
 *  Splits FreeNode pointed to by pN to a smaller FreeNode and a FullNode with newNodeSize space.
 *  Returns pointer to new FullNode struct (NULL on fail).
+*  don't forget to add 4 to pointer after receiving it
 */
 FullNodeRef allocateFullNode(FreeListRef L, FreeNodeRef fn, int newNodeSize);
 
@@ -123,6 +124,12 @@ void moveNext(FreeListRef L);
  * Returns true if current points to last free node, else returns NULL
  */
 int atLast(FreeListRef L);
+
+/*
+ * getFreeNodeSize
+ * returns the nodeSize of node
+ */
+int getFreeNodeSize(FreeNodeRef node);
 
 /*************** Other Functions *************************************************/
 
