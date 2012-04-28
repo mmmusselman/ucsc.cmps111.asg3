@@ -43,6 +43,14 @@ void *freelistalloc(char *mem, int flag, long n_bytes) {
 			break;
 		case 0x4 | 0x08: /*next-fit*/
 			printf("next-fit!\n");
+			do {
+				cur = getCurrent(L);
+				if(getFreeNodeSize(cur) >= n_bytes+sizeof(int)) {
+					returnPtr = sizeof(int) + (int)allocateFullNode(L, cur, n_bytes);
+					break;
+				}
+				moveNext(L);
+			} while(! atLast(L));
 			break;
 		case 0x4 | 0x10: /*best-fit*/
 			printf("best-fit!\n");
