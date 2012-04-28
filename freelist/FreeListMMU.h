@@ -15,7 +15,7 @@ void *freelistinit(long n_bytes, unsigned int flags);
 /*
 *  freelistalloc
 */
-void *freelistalloc(char *mem, long n_bytes);
+void *freelistalloc(char *mem, int flag, long n_bytes);
 
 /*
 *	freelistfree

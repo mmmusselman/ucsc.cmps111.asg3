@@ -22,11 +22,11 @@ typedef struct FullNode{
 } FullNode;
 
 typedef struct FreeList{
+   int flag;
    FreeNodeRef front;
    char *back;
    FreeNodeRef current;
    int numFreeNodes;
-   int mode;
 } FreeList;
 
 
@@ -85,12 +85,12 @@ FullNodeRef allocateFullNode(FreeListRef L, FreeNodeRef fn, int newNodeSize){
 *  newFreeList
 *  Returns FreeListRef pointing to new FreeList struct.
 *  Initializes current and front fields to NULL, sets numFreeNodes field to 1.
-*  MODE: 0=first-fit
-*		 1=next-fit
-*		 2=best-fit
-*		 3=worst-fit
+*  FLAG: 0x4=first-fit
+*		 0x4|0x08=next-fit
+*		 0x4|0x10=best-fit
+*		 0x4|0x18=worst-fit
 */
-FreeListRef newFreeList(int nbytes, int newMode){
+FreeListRef newFreeList(int nbytes, int newFlag){
    FreeListRef L;
    L = malloc(sizeof(FreeList) + nbytes);
    FreeNodeRef N = newFreeNode(nbytes, ((int)L) + sizeof(FreeList));
@@ -98,7 +98,7 @@ FreeListRef newFreeList(int nbytes, int newMode){
    N->nextNode = N;
    L->current = L->front = N;
    L->numFreeNodes = 1;
-   L->mode = newMode;
+   L->flag = newFlag;
    L->back = ((int)L) + sizeof(FreeList) + nbytes - 1;
    return(L);
 }
@@ -186,19 +186,19 @@ int getNumFreeNodes(FreeListRef L){
 }
 
 /*
-*  getMode
-*  Returns the mode of L
-*  MODE: 0=first-fit
-*		 1=next-fit
-*		 2=best-fit
-*		 3=worst-fit
+*  getFlag
+*  Returns the flag of L
+*  FLAG: 0x4=first-fit
+*		 0x4|0x08=next-fit
+*		 0x4|0x10=best-fit
+*		 0x4|0x18=worst-fit
 */
-int getMode(FreeListRef L){
+int getFlag(FreeListRef L){
 	if( L==NULL ){
-		printf("FreeList Error: calling getMode() on NULL FreeListRef\n");
+		printf("FreeList Error: calling getFlag() on NULL FreeListRef\n");
 		exit(1);
 	}
-	return(L->mode);
+	return(L->flag);
 }
 
 
@@ -210,6 +210,7 @@ int getMode(FreeListRef L){
  * makeFree
  * makes FullNodeRef memory block part of a FreeNodeRef, appropriately merging adjacent FreeNodes
  * precondition: fn is a fullnode (not part of a freenode, u asshole)
+ * don't forget to subtract 4 bytes before passing it in
  */
 void makeFree(FreeListRef L, FullNodeRef fn) {
 	if( L==NULL ){
@@ -317,7 +318,7 @@ void movePrev(FreeListRef L) {
 		printf("FreeList Error: calling movePrev() on an OffEnd() FreeListRef\n");
 		exit(1);
 	}
-	L->current = L->current->prevNode;
+	L->current = (L->current)->prevNode;
 }
 
 /*
@@ -339,7 +340,7 @@ void moveNext(FreeListRef L) {
 		printf("FreeList Error: calling moveNext() on an OffEnd() FreeListRef\n");
 		exit(1);
 	}
-	L->current = L->current->nextNode;
+	L->current = (L->current)->nextNode;
 }
 
 /*************** Other Functions *************************************************/

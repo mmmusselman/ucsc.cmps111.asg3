@@ -14,13 +14,28 @@
 *  freelistinit
 */
 void *freelistinit(long n_bytes, unsigned int flags) {
-	return NULL;
+	return newFreeList(n_bytes, flags);
 }
 
 /*
 *  freelistalloc
 */
-void *freelistalloc(char *mem, long n_bytes) {
+void *freelistalloc(char *mem, int flag, long n_bytes) {
+	FreeListRef L = mem;
+	switch(flag) {
+		case 0x4: /*first-fit*/
+			printf("first-fit!\n");
+			break;
+		case 0x4 | 0x08: /*next-fit*/
+			printf("next-fit!\n");
+			break;
+		case 0x4 | 0x10: /*best-fit*/
+			printf("best-fit!\n");
+			break;
+		case 0x4 | 0x18: /*worst-fit*/
+			printf("worst-fit!\n");
+			break;
+	}
 	return NULL;
 }
 

@@ -83,17 +83,6 @@ int getCurrent(FreeListRef L);
 */
 int getNumFreeNodes(FreeListRef L);
 
-/*
-*  getMode
-*  Returns the mode of L
-*  MODE: 0=first-fit
-*		 1=next-fit
-*		 2=best-fit
-*		 3=worst-fit
-*/
-int getMode(FreeListRef L);
-
-
 
 
 /**************** Manipulation procedures ****************************************/
@@ -102,6 +91,7 @@ int getMode(FreeListRef L);
  * makeFree
  * makes FullNodeRef memory block part of a FreeNodeRef, appropriately merging adjacent FreeNodes
  * precondition: fn is a fullnode (not part of a freenode, u asshole)
+ * don't forget to subtract 4 bytes before passing it in
  */
 void makeFree(FreeListRef L, FullNodeRef fn);
 
