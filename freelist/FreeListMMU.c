@@ -48,9 +48,8 @@ void *freelistalloc(char *mem, int flag, long n_bytes) {
 			}
 			break;
 		case 0x4 | 0x10: /*best-fit*/
-			printf("best-fit!\n");
-			FreeNodeRef best = NULL;
 			moveFirst(L);
+			FreeNodeRef best = NULL;
 			do {
 				cur = getCurrent(L);
 				if(getFreeNodeSize(cur) == n_bytes + sizeof(int))/*found perfect node!*/
