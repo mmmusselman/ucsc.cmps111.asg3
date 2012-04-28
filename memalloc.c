@@ -8,6 +8,10 @@ int curr_id = 0;
 
 int meminit(long n_bytes, unsigned int flags, int parm1, int *parm2)
 {
+	if(curr_id >= 512) {
+		fprintf(stderr, "512 allocators are currently in use\n");
+		return -1;
+	}
     // Prepare allocators and metadata
     switch (flags)
     {
