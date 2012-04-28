@@ -74,6 +74,10 @@ FullNodeRef allocateFullNode(FreeListRef L, FreeNodeRef fn, int newNodeSize){
 		fn->nodeSize = 0;
 	} else {
 		fn->nodeSize -= newNodeSize + sizeof(FullNode);
+		if(fn->nodeSize < sizeof(FreeNode)) {
+			printf("FreeList Error: Calling allocateFullNode() results in an insufficiently sized FreeNode!\n");
+			exit(1);
+		}
 	}
 	FullNodeRef N = ((int)fn) + fn->nodeSize;
 	memset(N, 0, sizeof(FullNode)+N->nodeSize);
