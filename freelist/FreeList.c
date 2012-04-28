@@ -333,7 +333,7 @@ void moveNext(FreeListRef L) {
 		exit(1);
 	}
 	if( isFull(L) ){
-		printf("FreeList Error: calling moveNext() on an empty FreeListRef\n");
+		printf("FreeList Error: calling moveNext() on a full FreeListRef\n");
 		exit(1);
 	}
 	if( offEnd(L) ){
@@ -341,6 +341,26 @@ void moveNext(FreeListRef L) {
 		exit(1);
 	}
 	L->current = (L->current)->nextNode;
+}
+
+/*
+ * atLast
+ * Returns true if current points to last free node, else returns NULL
+ */
+int atLast(FreeListRef L) {
+	if( L==NULL ){
+		printf("FreeList Error: calling atLast() on a NULL FreeListRef\n");
+		exit(1);
+	}
+	if( isFull(L) ){
+		printf("FreeList Error: calling atLast() on a full FreeListRef\n");
+		exit(1);
+	}
+	if( offEnd(L) ){
+		printf("FreeList Error: calling atLast() on an OffEnd() FreeListRef\n");
+		exit(1);
+	}
+	return (L->current)->nextNode == L->current;
 }
 
 /*************** Other Functions *************************************************/

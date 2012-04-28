@@ -118,6 +118,12 @@ void movePrev(FreeListRef L);
  */
 void moveNext(FreeListRef L);
 
+/*
+ * atLast
+ * Returns true if current points to last free node, else returns NULL
+ */
+int atLast(FreeListRef L);
+
 /*************** Other Functions *************************************************/
 
 /*
