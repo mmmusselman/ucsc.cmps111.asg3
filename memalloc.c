@@ -77,7 +77,7 @@ void *memalloc(int handle, long n_bytes)
 
 void memfree(void *region)
 {
-    int alloc_id = -1;
+    int alloc_id = -1, free_alloc_id=-1;
     long addr_diff = (1 << 30) - 1;
     //printf("addr_diff = %d\n", addr_diff);
     int argi;
@@ -90,6 +90,14 @@ void memfree(void *region)
             addr_diff = (long)(region) - (long)(alloc_array[argi]);
         }
     }
+	
+	// set free_alloc_id
+	for (argi = 0; argi < 512; argi++) {
+		if( (long)region - (long)alloc_array[argi] > 0 ) {
+			free_alloc_id=argi;
+			break;
+		}
+	}
     
     // Grab the flag and call the appropriate function for the allocator
     int flag = ((int *)alloc_array[alloc_id])[0];
@@ -100,9 +108,10 @@ void memfree(void *region)
         case 0x2:
             break;
         case 0x4: case 0x4 | 0x08: case 0x4 | 0x10: case 0x4 | 0x18:
-            freelistfree(alloc_array[alloc_id], region); break;
+			printf("alloc_array[free_alloc_id]=%d\n", alloc_array[free_alloc_id]);
+            freelistfree(alloc_array[free_alloc_id], region); break;
         default: fprintf(stderr, "invalid flag\n"); 
     }
-    printf("\n");
+    //printf("\n");
 }
 
