@@ -23,9 +23,13 @@ int main(){
    printf("sizeof int %d\n", sizeof(char *));
    printf("int shift %d\n", (1<<1));
    int array[5] = {2, 4, 8, 16, 0};
+   meminit(4096,2,1,array);
    int handler1=meminit(4096,2,1,array);
    memalloc(handler1, 15);
    memalloc(handler1, 6);
+   int *x;
+   x=134707704;
+   memfree(x);
    
    return 0;
 }
@@ -77,7 +81,6 @@ int meminit(long n_bytes, unsigned int flags, int parm1, int *parm2){
 			   (sizeof(char *) * numSlabs) + //array of pointers to last object of each slab
 			   (sizeof(char *) * numSlabs) + //array of pointers to first free object of each slab
 			   (sizeof(char) * n_bytes);
-			   
 			   //sizeof(int *) == sizeof(char *) so this is less interesting than it appears
 			   
 			headerSize = allocSize - n_bytes;
@@ -249,3 +252,79 @@ void *memalloc(int handle, long n_bytes){
    
    return 0;
 }
+
+void memfree(void *region) {
+	int slabIdx, numSlabs, numSizes, slabObjSize, firstFirstObjAddr, lastLastObjAddr;
+	int i;
+	int *ptr, *ptr2, *ptr3, *ptr4;
+	
+	int alloc_id = -1;
+    long addr_diff = (1 << 30) - 1;
+    //printf("addr_diff = %d\n", addr_diff);
+    int argi;
+    for (argi = 0; argi < 512; ++argi)
+    {
+        long diff = (long)(region) - (long)(alloc_array[argi]);
+        if (diff < addr_diff && diff > 0)
+        {
+            alloc_id = argi;
+            addr_diff = (long)(region) - (long)(alloc_array[argi]);
+        }
+    }
+	printf("alloc_id = %d\n", alloc_id);
+    printf("addr_diff = %lu\n", addr_diff);
+	
+	numSizes = ((int *)alloc_array[alloc_id])[3];
+	numSlabs = ((int *)alloc_array[alloc_id])[1];
+	ptr = &((int *)alloc_array[alloc_id])[4+numSizes+numSlabs]; //first object pointer
+	ptr2 = &((int *)alloc_array[alloc_id])[4+numSizes]; //current slab object size
+	ptr3 = &((int *)alloc_array[alloc_id])[4+numSizes+3*numSlabs]; //first free object pointer
+	ptr4 = &((int *)alloc_array[alloc_id])[4+numSizes+2*numSlabs]; //last byte pointer
+	
+	//check if region is valid
+	firstFirstObjAddr = ptr[0];
+	lastLastObjAddr = ptr4[numSlabs-1];
+	
+	if(region < firstFirstObjAddr || region > lastLastObjAddr) return; //region invalid
+	
+	
+	
+	
+	
+	/*
+	for (i=0; i<numSlabs; i++){
+	  if (address <= ptr4[i])   //Finds where the address is located in what slab #
+		 x = i;
+	  else break;
+	}
+	memset(address, 0, ptr2[x]);  //Clear object quickly
+	if ( address + ptr2[x] >= ptr4[x]) // If object is last object in slab
+	  address = NULL ;
+	else    //wrong, need to find next free object        //If object is not last object in slab
+	  address = address + ptr2[x];    //point to next object
+	//Next, we need to update the first free obj ptr while checking for if the whole slab
+	//is now empty
+	int empty = 0; int firstEmpty=0;
+	for (i=0; i<(slabSize/ptr2[x]); i++){  //slabsize/ptr2[x] is # objects in this slab
+	  if (ptr1[x] + i*ptr2[x]= ptr1[x] + (i+1)*ptr2[x]) {  //If the value of the object is the address of the next object...
+		 if (firstEmpty=0){ // Then this entry is the first empty entry
+			firstEmpty=i;
+		 }
+		 empty++;
+	  }
+	}
+	if (empty==slabsize/ptr2[x])  //if slab is empty
+	{
+	  ptr3[x]=ptr1[x]
+	  memset(ptr1[x], 0, slabsize);
+	  ptr2[x]=0;
+	}
+	//update ptr3[x] if slab isn't empty
+*/
+
+	for(i=0; i<1024; i++) {
+		printf("%d ", ((int*)alloc_array[alloc_id])[i+48/4]);
+	}
+	puts("");
+	
+	}
