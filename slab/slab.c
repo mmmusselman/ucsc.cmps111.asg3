@@ -273,10 +273,10 @@ void *memalloc(int handle, long n_bytes){
 }
 
 void memfree(void *region) {
-	int slabIdx, numSlabs, numSizes, slabObjSize, firstFirstObjAddr, lastLastObjAddr;
-	int i;
+	int slabIdx, numSlabs, numSizes, slabSize, numObjects, firstFirstObjAddr, lastLastObjAddr;
+	int i, counter, justLooping;
 	int *ptr, *ptr2, *ptr3, *ptr4;
-	int *x;
+	int *nFOA; //next Free Object Address
 	
 	int alloc_id = -1;
     long addr_diff = (1 << 30) - 1;
@@ -312,25 +312,55 @@ void memfree(void *region) {
 		 slabIdx = i;
 	  else break;
 	}
+	
+	slabSize = ((int *)alloc_array[alloc_id])[2];
+	numObjects = slabSize / ptr2[slabIdx];
+	
 	memset(region, 0, ptr2[slabIdx]);  //Clear object quickly
 	
 	printf("ptr3[%d]=%d\n", slabIdx, ptr3[slabIdx]);
-	//printf("*ptr3[%d]=%d\n", slabIdx, *ptr[slabIdx]);
-	x = ptr[slabIdx];
-	printf("x = %d\n", x);
+	nFOA = ptr3[slabIdx];
+	printf("*nFOA = %d\n", *nFOA);
+	printf("nFOA = %d\n", nFOA);
 	
-	if(ptr3[slabIdx] > region) { //region is the new first free object
+	justLooping = 0;
+	counter = 0;
 	
-	} else { //region is either in the middle, or the new last free object
-		
+	while(nFOA < ptr4[slabIdx]) {	
+		if(justLooping == 0) {
+			if(ptr3[slabIdx] > region) { //region is the first free object
+				*region = ptr3[slabIdx];
+				ptr3[slabIdx] = region;
+				justLooping = 1;
+				counter++;
+			} else if(*nFOA == NULL) {
+				//nFOA is the address of the last free object
+				if(region > nFOA) { //region is the new last free object
+					//set *nFOA to region
+					*nFOA = region;
+					region = NULL;
+					justLooping = 1;
+					counter++;
+				} else {//region is in the middle... this should never run
+					
+				}
+			} else if(nFOA > region) {//early exit: region is in the middle
+				
+			}
+		}
+		//detect if slab is now empty
+		if(++counter == numObjects) {
+			ptr3[slabIdx]=ptr[slabIdx];
+			memset(ptr[slabIdx], 0, slabSize);
+			ptr2[slabIdx]=0;
+			break;
+		}
+		nFOA = *nFOA;//traverse dat linked list
+		if(justLooping==1 && *nFOA == NULL) {
+			break;
+		}
 	}
-	/*
-	if ( region + ptr2[slabIdx] >= ptr4[slabIdx]) // If object is last object in slab
-	  *region = NULL; //redundant
-	else    //wrong, need to find next free object        //If object is not last object in slab
-		
 	
-	  address = address + ptr2[x];    //point to next object
 	//Next, we need to update the first free obj ptr while checking for if the whole slab
 	//is now empty
 	int empty = 0; int firstEmpty=0;
@@ -342,14 +372,6 @@ void memfree(void *region) {
 		 empty++;
 	  }
 	}
-	if (empty==slabsize/ptr2[x])  //if slab is empty
-	{
-	  ptr3[x]=ptr1[x]
-	  memset(ptr1[x], 0, slabsize);
-	  ptr2[x]=0;
-	}
-	//update ptr3[x] if slab isn't empty
-*/
 
 	for(i=0; i<1024; i++) {
 		printf("%d ", ((int*)alloc_array[alloc_id])[i+48/4]);
