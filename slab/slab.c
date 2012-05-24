@@ -33,7 +33,9 @@ int main(){
 	puts("");
    
    printf("calling memalloc(15)\n");
-   memalloc(handler1, 15);
+   int *firstObj = memalloc(handler1, 15);
+   
+   printf("firstObj = %d\n", firstObj);
    
    for(i=0; i<1024; i++) {
 		printf("%d ", ((int*)alloc_array[handler1-100])[i]);
@@ -41,17 +43,34 @@ int main(){
 	puts("");
    
    printf("calling memalloc(6)\n");
-   memalloc(handler1, 6);
+   int *secondObj = memalloc(handler1, 6);
+   
+   printf("secondObj = %d\n", secondObj);
    
    for(i=0; i<1024; i++) {
 		printf("%d ", ((int*)alloc_array[handler1-100])[i]);
 	}
 	puts("");
+	
+	
+   memfree(secondObj);
+   memfree(firstObj);
    
-   int *x;
-   x=134699536;
-   printf("calling memfree(%d)\n", x);
-   memfree(x);
+   for(i=0; i<15; i++) {
+		printf("i=%d!\n", i);
+		*secondObj = memalloc(handler1, 16);
+		//for(i=0; i<1024; i++) {
+		//	printf("%d ", ((int*)alloc_array[handler1-100])[i]);
+		//}
+		puts("");
+   }
+   
+   memfree(secondObj);
+   
+	for(i=0; i<1024; i++) {
+		printf("%d ", ((int*)alloc_array[handler1-100])[i]);
+	}
+	puts("");
    
    return 0;
 }
@@ -211,19 +230,28 @@ void *memalloc(int handle, long n_bytes){
 			ptr3 = &((int *)alloc_array[newH])[4+numSizes+3*numSlabs]; //first free object pointer
 			ptr4 = &((int *)alloc_array[newH])[4+numSizes+2*numSlabs]; //last byte pointer
 
+printf("**********1**************\n");
 			//first pass: find perfect slab
 			for(i=0; i<numSlabs; i++) {
 				if(ptr2[i] == 0)
 					continue;
 				else if(ptr2[i] == closestObjSize) { //found perfect slab
-					if(ptr3[i] > ptr4[i]) continue; //if full, not perfect after all
+					if(ptr3[i] >= ptr4[i]) continue; //if full, not perfect after all
 					
 					returnPtr = ptr3[i];
-					ptr3[i] = ptr3[i] + closestObjSize;//update ptr3[i]
+					if(ptr3[i]==NULL) {
+						x = ptr3[i];
+						*x = ptr4[i];
+					} else {
+						x = ptr3[i];
+						ptr3[i] = *x;
+						//ptr3[i] = ptr3[i] + closestObjSize;//update ptr3[i]
+					}
 					memset(returnPtr, 0, closestObjSize);
 					return returnPtr;
 				}
 			}
+printf("**********2**************\n");
 			//second pass: find empty slab
 			for(i=0; i<numSlabs; i++) {
 				if(ptr2[i] == 0) {//empty slab
@@ -235,11 +263,19 @@ void *memalloc(int handle, long n_bytes){
 					}
 					ptr2[i] = closestObjSize; //update current slab's object size
 					returnPtr = ptr3[i]; //backup first free object
-					ptr3[i] = ptr3[i]+closestObjSize;//update ptr3[i]
+					if(ptr3[i]==NULL) {
+						x = ptr3[i];
+						*x = ptr4[i];
+					} else {
+						x = ptr3[i];
+						ptr3[i] = *x;
+						//ptr3[i] = ptr3[i] + closestObjSize;//update ptr3[i]
+					}
 					memset(returnPtr, 0, closestObjSize);
 					return returnPtr;
 				}
 			}
+printf("**********3**************\n");
 			//third pass: find slab with bigger object size
 			//j keeps track of the smallest bigger slab
 			j=-1;
@@ -251,7 +287,14 @@ void *memalloc(int handle, long n_bytes){
 						j = i;
 				}
 				returnPtr = ptr3[j];
-				ptr3[j] = ptr3[j] + ptr2[j];
+				if(ptr3[i]==NULL) {
+					x = ptr3[i];
+					*x = ptr4[i];
+				} else {
+					x = ptr3[i];
+					ptr3[i] = *x;
+					//ptr3[i] = ptr3[i] + closestObjSize;//update ptr3[i]
+				}
 				memset(returnPtr, 0, ptr2[j]);
 				return returnPtr;
 			}
@@ -277,6 +320,8 @@ void memfree(void *region) {
 	int i, counter, justLooping;
 	int *ptr, *ptr2, *ptr3, *ptr4;
 	int *nFOA; //next Free Object Address
+	int *regionPtr;
+	regionPtr = (long)region;
 	
 	int alloc_id = -1;
     long addr_diff = (1 << 30) - 1;
@@ -318,10 +363,8 @@ void memfree(void *region) {
 	
 	memset(region, 0, ptr2[slabIdx]);  //Clear object quickly
 	
-	printf("ptr3[%d]=%d\n", slabIdx, ptr3[slabIdx]);
+	printf("before loop, ptr3[%d]=%d\n", slabIdx, ptr3[slabIdx]);
 	nFOA = ptr3[slabIdx];
-	printf("*nFOA = %d\n", *nFOA);
-	printf("nFOA = %d\n", nFOA);
 	
 	justLooping = 0;
 	counter = 0;
@@ -329,10 +372,11 @@ void memfree(void *region) {
 	while(nFOA < ptr4[slabIdx]) {	
 		if(justLooping == 0) {
 			if(ptr3[slabIdx] > region) { //region is the first free object
-				*region = ptr3[slabIdx];
+				*regionPtr = ptr3[slabIdx];
 				ptr3[slabIdx] = region;
 				justLooping = 1;
 				counter++;
+				counter++;//this works, trust me
 			} else if(*nFOA == NULL) {
 				//nFOA is the address of the last free object
 				if(region > nFOA) { //region is the new last free object
@@ -341,18 +385,21 @@ void memfree(void *region) {
 					region = NULL;
 					justLooping = 1;
 					counter++;
-				} else {//region is in the middle... this should never run
-					
 				}
-			} else if(nFOA > region) {//early exit: region is in the middle
-				
+			} else if(*nFOA > region) {//early exit: region is in the middle
+				*regionPtr = *nFOA;
+				*nFOA = region;
+				justLooping = 1;
+				counter++;
+				counter++; //this works, trust me
+				nFOA = *nFOA;
 			}
 		}
 		//detect if slab is now empty
 		if(++counter == numObjects) {
-			ptr3[slabIdx]=ptr[slabIdx];
-			memset(ptr[slabIdx], 0, slabSize);
-			ptr2[slabIdx]=0;
+			ptr3[slabIdx]=ptr[slabIdx]; //firstFreeObj = firstObj
+			memset(ptr[slabIdx], 0, slabSize); //all zero'd out
+			ptr2[slabIdx]=0; //currentSlabObjSize = 0
 			break;
 		}
 		nFOA = *nFOA;//traverse dat linked list
@@ -361,7 +408,7 @@ void memfree(void *region) {
 		}
 	}
 	
-	//Next, we need to update the first free obj ptr while checking for if the whole slab
+	/*//Next, we need to update the first free obj ptr while checking for if the whole slab
 	//is now empty
 	int empty = 0; int firstEmpty=0;
 	for (i=0; i<(slabSize/ptr2[x]); i++){  //slabsize/ptr2[x] is # objects in this slab
@@ -371,11 +418,16 @@ void memfree(void *region) {
 		 }
 		 empty++;
 	  }
-	}
+	}*/
 
 	for(i=0; i<1024; i++) {
 		printf("%d ", ((int*)alloc_array[alloc_id])[i+48/4]);
 	}
 	puts("");
+	
+	printf("after loop, ptr3[%d]=%d\n", slabIdx, ptr3[slabIdx]);
+	
+	printf("counter = %d\n", counter);
+	printf("numObjects = %d\n", numObjects);
 	
 	}
