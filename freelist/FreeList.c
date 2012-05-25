@@ -13,8 +13,8 @@
 
 typedef struct FreeNode{
    int nodeSize;
-   struct Node* nextNode;
-   struct Node* prevNode;
+   FreeNodeRef nextNode;
+   FreeNodeRef prevNode;
 } FreeNode;
 
 typedef struct FullNode{
