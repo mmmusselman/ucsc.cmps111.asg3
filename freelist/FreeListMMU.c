@@ -13,15 +13,21 @@
 /*
 *  freelistinit
 */
-void *freelistinit(long n_bytes, unsigned int flags);
+void *freelistinit(long n_bytes, unsigned int flags) {
+	return NULL;
+}
 
 /*
 *  freelistalloc
 */
-void *freelistalloc(char *mem, long n_bytes);
+void *freelistalloc(char *mem, long n_bytes) {
+	return NULL;
+}
 
 /*
 *	freelistfree
 */
-void freelistfree(char *mem, int address);
+void freelistfree(char *mem, int address) {
+	return;
+}
 

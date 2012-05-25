@@ -54,7 +54,7 @@ int isFull(FreeListRef L);
  * offEnd
  * Returns True if current points to an invalid FreeNodeRef, false otherwise.
  */
-int offEnd(FreeListRef L)
+int offEnd(FreeListRef L);
 
 /*
  * atFirst
