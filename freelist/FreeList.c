@@ -95,7 +95,7 @@ FreeListRef newFreeList(int nbytes, int newMode){
    L->current = L->front = L;
    L->numFreeNodes = 1;
    L->mode = newMode;
-   back = L + sizeof(FreeList) + nbytes - 1;
+   L->back = L + sizeof(FreeList) + nbytes - 1;
    return(L);
 }
 
