@@ -242,28 +242,28 @@ void makeFree(FreeListRef L, FullNodeRef fn) {
 	}
 	if( L->numFreeNodes==0 ){
 		L->numFreeNodes = 1;
-		FreeNodeRef n = newFreeNode(fn, sizeof(FullNode) + fn->nodeSize);
+		FreeNodeRef n = newFreeNode(sizeof(FullNode) + fn->nodeSize, fn);
 		L->front = L->current = n;
 	} else {
-		L->moveFirst();
-		FreeNodeRef prior = L->getCurrent();
+		moveFirst(L);
+		FreeNodeRef prior = getCurrent(L);
 		while(prior < fn) {
-			L->moveNext();
-			prior = L->getCurrent();
+			moveNext(L);
+			prior = getCurrent(L);
 		}
-		FreeNodeRef post = L->getCurrent(); //post FreeNode
-		L->movePrev();
-		prior = L->getCurrent(); //prior FreeNode
+		FreeNodeRef post = getCurrent(L); /*post FreeNode*/
+		movePrev(L);
+		prior = getCurrent(L); /*prior FreeNode*/
 		
-		if( prior + sizeof(FreeNode) + prior->nodeSize == fn){ //merge prior with adjacent fullnode
+		if( prior + sizeof(FreeNode) + prior->nodeSize == fn){ /*merge prior with adjacent fullnode*/
 			prior->nodeSize += sizeof(FullNode) + fn->nodeSize;
-			if( fn + sizeof(FullNode) + fn->nodeSize == post ){ //merge prior with post
+			if( fn + sizeof(FullNode) + fn->nodeSize == post ){ /*merge prior with post*/
 				prior->nextNode = post->nextNode;
 				prior->nodeSize += sizeof(FreeNode) + post->nodeSize;
 				L->numFreeNodes -= 1;
 			}
-		} else if( fn + sizeof(FullNode) + fn->nodeSize == post){ //merge fullnode with adjacent post
-			FreeNodeRef n = newFreeNode(fn, sizeof(FullNode) + fn->nodeSize + sizeof(FreeNode) + post->nodeSize);
+		} else if( fn + sizeof(FullNode) + fn->nodeSize == post){ /*merge fullnode with adjacent post*/
+			FreeNodeRef n = newFreeNode(sizeof(FullNode) + fn->nodeSize + sizeof(FreeNode) + post->nodeSize, fn);
 			n->prevNode = post->prevNode;
 			n->nextNode = post->nextNode;
 			if( L->numFreeNodes==1 ){
@@ -271,10 +271,6 @@ void makeFree(FreeListRef L, FullNodeRef fn) {
 			}
 		}
 	}
-	
-	FreeNodeRef post = NULL;
-	L->length = 0;
-	L->back = L->front = L->current = NULL;
 }
 
 /*
@@ -313,11 +309,11 @@ void movePrev(FreeListRef L) {
 		printf("FreeList Error: calling movePrev() on an OffEnd() FreeListRef\n");
 		exit(1);
 	}
-	if(L->current == L->current->prev) {
+	if(L->current == L->current->prevNode) {
 		L->current = NULL;
 		return;
 	}
-	L->current = L->current->prev;
+	L->current = L->current->prevNode;
 }
 
 /*
@@ -339,11 +335,11 @@ void moveNext(FreeListRef L) {
 		printf("FreeList Error: calling moveNext() on an OffEnd() FreeListRef\n");
 		exit(1);
 	}
-	if(L->current == L->current->next) {
+	if(L->current == L->current->nextNode) {
 			L->current = NULL;
 			return;
-		}
-	L->current = L->current->next;
+	}
+	L->current = L->current->nextNode;
 }
 
 /*************** Other Functions *************************************************/
