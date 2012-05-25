@@ -7,7 +7,7 @@
 
 #include<stdio.h>
 #include<stdlib.h>
-#include "List.h"
+#include "FreeList.h"
 
 /************** Private Structs: not exported *************************************/
 
@@ -17,13 +17,9 @@ typedef struct FreeNode{
    struct Node* prevNode;
 } FreeNode;
 
-typedef FreeNode* FreeNodeRef;
-
 typedef struct FullNode{
 	int nodeSize;
 } FullNode;
-
-typedef FullNode* FullNodeRef;
 
 typedef struct FreeList{
    FreeNodeRef front;

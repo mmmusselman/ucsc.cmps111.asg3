@@ -9,7 +9,9 @@
 
 
 /***************************** Exported Types *************************************/
-typedef struct FreeList * FreeListRef;
+typedef struct FreeList* FreeListRef;
+typedef struct FreeNode* FreeNodeRef;
+typedef struct FullNode* FullNodeRef;
 
 /************** Constructors-Destructors ******************************************/
 
