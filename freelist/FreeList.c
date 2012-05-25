@@ -348,14 +348,14 @@ void moveNext(FreeListRef L) {
 *  printFreeList
 *  Prints FreeNode elements in L to stdout.
 */
-void printFreeList(ListRef L){
-   Node* N = NULL;
+void printFreeList(FreeListRef L){
+   FreeNodeRef N = NULL;
    if( L==NULL ){
       printf("FreeList Error: calling printList() on NULL ListRef\n");
       exit(1);
    }
    printf("(prev, next, nodeSize): ");
-   for(N = L->front; N != (N = N->next); ){
+   for(N = L->front; N != (N = N->nextNode); ){
       printf("(%d, %d, %d) ", N->prevNode, N->nextNode, N->nodeSize);
    }
    printf("\n");
