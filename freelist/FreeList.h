@@ -139,7 +139,7 @@ void moveNext(FreeListRef L);
 *  printFreeList
 *  Prints FreeNode elements in L to stdout.
 */
-void printFreeList(ListRef L);
+void printFreeList(FreeListRef L);
 
 
 
