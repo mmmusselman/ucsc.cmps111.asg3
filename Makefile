@@ -1,13 +1,20 @@
 TEXSRC      =   asg3_dd.tex
 TEXPDF      =   ${TEXSRC:.tex=.pdf}
 LIBFILE     =   libmem.a
-CSOURCE     =   memalloc.c
-COBJECT     =   ${CSOURCE:.c=.o}
+CSOURCES    =   memalloc.c buddy.c
+CHEADERS    =   buddy.h
+COBJECTS    =   ${CSOURCES:.c=.o}
+TESTSRCS    =   test1.c
+TESTEXES    =   ${TESTSRCS:.c=}
+TARFILE     =   proj3.tar
 
-all : ${LIBFILE} ${TEXPDF}
+all : ${LIBFILE} ${TEXPDF} ${TESTEXES}
 
-${LIBFILE} : ${COBJECT}
-	ar -cvq $@ $<
+${TESTEXES} : ${TESTSRCS} ${LIBFILE}
+	gcc -o $@ $< -L. -lmem
+
+${LIBFILE} : ${COBJECTS}
+	ar -cvr $@ ${COBJECTS}
 	
 %.o : %.c
 	gcc -Wall -c $<
@@ -19,15 +26,20 @@ view : ${TEXPDF}
 	- evince $<
 
 clean :
-	- rm ${COBJECT}
+	- rm ${COBJECTS}
 	- rm ${TEXSRC:.tex=.aux}
 	- rm ${TEXSRC:.tex=.log}
 
 spotless : clean
 	- rm ${LIBFILE}
 	- rm ${TEXPDF}
+	- rm ${TESTEXES}
 
 again :
 	gmake spotless
 	gmake all
 
+pack :
+	tar cf ${TARFILE} ${TEXPDF} ${CSOURCES} ${CHEADERS} README Makefile
+	gzip ${TARFILE} 
+	

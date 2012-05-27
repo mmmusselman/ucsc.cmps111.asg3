@@ -1,3 +1,4 @@
+#include "buddy.h"
 #include <stdio.h>
 #include <stdlib.h>
 
@@ -6,29 +7,18 @@ int curr_id = 0;
 
 int meminit(long n_bytes, unsigned int flags, int parm1, int *parm2)
 {
-    printf("n_bytes = %d\n", (int)n_bytes);
-    printf("flags = %d\n", flags);
-    alloc_array[curr_id] = malloc((sizeof(int) * 2) + (sizeof(char) * n_bytes));
-
-    // If malloc fails, print an error message and return -1
-    if (alloc_array[curr_id] == NULL)
-    {
-        fprintf(stderr, "malloc failed\n");
-        return -1;
-    }
-    
-    // 1. Save the flag number in the piece of memory itself or return an error
-    // 2. Prepare allocators and metadata
+    // Prepare allocators and metadata
     switch (flags)
     {
         // Buddy allocator
         case 0x1: 
-            // If requested size is not a power of two, return an error
-            if ((n_bytes & (n_bytes - 1)) != 0)
+            alloc_array[curr_id] = buddyinit(n_bytes, flags, parm1); 
+            if (alloc_array[curr_id] == NULL)
             {
-                fprintf(stderr, "requested size for buddy allocator is not a power of 2\n");
+                fprintf(stderr, "buddy allocator could not be initialized\n");
                 return -1;
             }
+            break;
         // Slab allocator
         case 0x2: 
         // Free-list allocator
@@ -37,13 +27,7 @@ int meminit(long n_bytes, unsigned int flags, int parm1, int *parm2)
         default: fprintf(stderr, "invalid flag\n"); return -1;
     }
     
-    // Save the total number of unallocated number of bytes in the memory slab
-    ((int *)alloc_array[curr_id])[4] = n_bytes;
-    
     // Debug printing bullshit
-    printf("position of array = %d\n", (int)&alloc_array);
-    printf("position of alloc 1 = %d\n", (int)&alloc_array[1]);
-    printf("position of second int = %d\n", (int)&*(alloc_array)[0]);
     printf("flags = %d\n", ((int *)alloc_array[curr_id])[0]);
     printf("n_bytes = %d\n", ((int *)alloc_array[curr_id])[4]);
     
@@ -57,12 +41,64 @@ int meminit(long n_bytes, unsigned int flags, int parm1, int *parm2)
 
 void *memalloc(int handle, long n_bytes)
 {
-    if (handle - 100 > 511 || handle - 100 < 0) return NULL;
+    if (handle - 100 > 511 || handle - 100 < 0)
+    {
+        fprintf(stderr, "invalid allocator handle passed\n");
+        return NULL;
+    }
+    // Convert the handle into an index recognizeable by the allocator array
+    int real_id = handle - 100;
+    if (alloc_array[real_id] == NULL)
+    {
+        printf("alloc_array[%d] has not been initialized\n", real_id);
+        return NULL;
+    }
+    
+    // Grab the flag and call the appropriate function for the allocator
+    int flag = ((int *)alloc_array[real_id])[0];
+    switch (flag)
+    {
+        case 0x1:
+            return buddyalloc(alloc_array[real_id], n_bytes); break;
+        case 0x2:
+            break;
+        case 0x4: case 0x4 | 0x08: case 0x4 | 0x10: case 0x4 | 0x18:
+            break;
+        default: fprintf(stderr, "invalid flag\n");
+    }
     return NULL;
 }
 
 void memfree(void *region)
 {
-
+    int alloc_id = -1;
+    long addr_diff = (1 << 30) - 1;
+    //printf("addr_diff = %d\n", addr_diff);
+    int argi;
+    for (argi = 0; argi < 512; ++argi)
+    {
+        long diff = (long)(region) - (long)(alloc_array[argi]);
+        if (diff < addr_diff && diff > 0)
+        {
+            alloc_id = argi;
+            addr_diff = (long)(region) - (long)(alloc_array[argi]);
+        }
+    }
+    printf("alloc_id = %d\n", alloc_id);
+    printf("addr_diff = %lu\n", addr_diff);
+    
+    // Grab the flag and call the appropriate function for the allocator
+    int flag = ((int *)alloc_array[alloc_id])[0];
+    switch(flag)
+    {
+        case 0x1:
+            buddyfree(alloc_array[alloc_id], region); break;
+        case 0x2:
+            break;
+        case 0x4: case 0x4 | 0x08: case 0x4 | 0x10: case 0x4 | 0x18:
+            break;
+        default: fprintf(stderr, "invalid flag\n"); 
+    }
+    
 }
 
