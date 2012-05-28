@@ -18,7 +18,7 @@ char *alloc_array[512];
 int curr_id = 0;
 
 
-int main(){
+int main(){ 
    printf("Test application\n");
    printf("sizeof int %d\n", sizeof(char *));
    printf("int shift %d\n", (1<<1));
@@ -56,22 +56,23 @@ int main(){
    memfree(secondObj);
    memfree(firstObj);
    
-   for(i=0; i<15; i++) {
-		printf("i=%d!\n", i);
-		*secondObj = memalloc(handler1, 16);
-		//for(i=0; i<1024; i++) {
-		//	printf("%d ", ((int*)alloc_array[handler1-100])[i]);
-		//}
+   for(i=0; i<254; i++) {
+		printf("i=%d\n", i);
+		secondObj = memalloc(handler1, 16);
+       // memalloc(handler1, 16);
+		/*for(i=0; i<1024; i++) {
+			printf("%d ", ((int*)alloc_array[handler1-100])[i]);
+		}*/
 		puts("");
    }
-   
+   printf("secondobj: %d\n", secondObj);
    memfree(secondObj);
    
 	for(i=0; i<1024; i++) {
 		printf("%d ", ((int*)alloc_array[handler1-100])[i]);
 	}
 	puts("");
-   
+   printf("done?\n");
    return 0;
 }
 
@@ -229,7 +230,8 @@ void *memalloc(int handle, long n_bytes){
 			ptr2 = &((int *)alloc_array[newH])[4+numSizes]; //current slab object size
 			ptr3 = &((int *)alloc_array[newH])[4+numSizes+3*numSlabs]; //first free object pointer
 			ptr4 = &((int *)alloc_array[newH])[4+numSizes+2*numSlabs]; //last byte pointer
-
+            x=ptr3[0];
+            printf("ldf %d\n", *x);
 printf("**********1**************\n");
 			//first pass: find perfect slab
 			for(i=0; i<numSlabs; i++) {
@@ -237,17 +239,31 @@ printf("**********1**************\n");
 					continue;
 				else if(ptr2[i] == closestObjSize) { //found perfect slab
 					if(ptr3[i] >= ptr4[i]) continue; //if full, not perfect after all
-					
+					printf("BE4ptr3[i]: %d\n", ptr3[i]);
+                    x=ptr3[i];
+                    printf("pttt: %d\n", *x);
+                    //printf("pointing to... %d\n", *ptr3[i]);
 					returnPtr = ptr3[i];
 					if(ptr3[i]==NULL) {
+                       printf("ptr3[i]null?: %d\n", ptr3[i]);
 						x = ptr3[i];
+                        printf("pointing to... %d\n", *x);
 						*x = ptr4[i];
 					} else {
+                    
+                    	/*for(i=0; i<1024; i++) {
+		printf("%d ", ((int*)alloc_array[100-100])[i]);
+	}
+	puts("");*/
+                    
+                       printf("ptr3[i]notnull?: %d\n", ptr3[i]);
 						x = ptr3[i];
+                        printf("pointing to... %d\n", *x);
 						ptr3[i] = *x;
 						//ptr3[i] = ptr3[i] + closestObjSize;//update ptr3[i]
 					}
 					memset(returnPtr, 0, closestObjSize);
+                    printf("ptr3[i]: %d\n", ptr3[i]+16);
 					return returnPtr;
 				}
 			}
@@ -257,10 +273,13 @@ printf("**********2**************\n");
 				if(ptr2[i] == 0) {//empty slab
 					//split slab into closestObjSize (write nextFreeSlab ptrs)
 					numObj = slabSize/closestObjSize;
+                    printf("dddptr3[i]: %d\n", ptr3[i]);
 					for(j=0; j<numObj-1; j++) { //last obj points to null
-						x = ptr3[i]+j*closestObjSize;
+                       //printf("closesobjsize: %d\n", closestObjSize);
+						x = ptr3[i]+j*closestObjSize; //printf("%d ", x);
 						*x=ptr3[i]+(j+1)*closestObjSize; //Make first byte of each object point to first byte of next object
-					}
+					    //  printf("%d ", *x);
+                    }
 					ptr2[i] = closestObjSize; //update current slab's object size
 					returnPtr = ptr3[i]; //backup first free object
 					if(ptr3[i]==NULL) {
@@ -269,9 +288,21 @@ printf("**********2**************\n");
 					} else {
 						x = ptr3[i];
 						ptr3[i] = *x;
+                        x = ptr3[i];
+                        printf("making new : %d\n",*x); 
+                       // if (*x==NULL)
+						 //  ptr3[i] = *x;
 						//ptr3[i] = ptr3[i] + closestObjSize;//update ptr3[i]
 					}
 					memset(returnPtr, 0, closestObjSize);
+                    printf("\nptr3[i]: %d\n", ptr3[i]);
+                    x = ptr3[i];
+                    printf("return: %d\n", *x);
+                    
+                    for(i=0; i<1024; i++) {
+		printf("%d ", ((int*)alloc_array[100-100])[i]);
+	}
+	puts("");
 					return returnPtr;
 				}
 			}
@@ -296,6 +327,7 @@ printf("**********3**************\n");
 					//ptr3[i] = ptr3[i] + closestObjSize;//update ptr3[i]
 				}
 				memset(returnPtr, 0, ptr2[j]);
+                printf("ptr3[i]: %d\n", ptr3[i]);
 				return returnPtr;
 			}
 
@@ -429,5 +461,4 @@ void memfree(void *region) {
 	
 	printf("counter = %d\n", counter);
 	printf("numObjects = %d\n", numObjects);
-	
-	}
+}
