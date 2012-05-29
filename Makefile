@@ -4,7 +4,7 @@ LIBFILE     =   libmem.a
 CSOURCES    =   memalloc.c buddy.c
 CHEADERS    =   buddy.h
 COBJECTS    =   ${CSOURCES:.c=.o}
-TESTSRCS    =   test1.c
+TESTSRCS    =   buddy_test.c
 TESTEXES    =   ${TESTSRCS:.c=}
 TARFILE     =   proj3.tar
 

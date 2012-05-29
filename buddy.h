@@ -11,4 +11,12 @@ int lg2(int num);
 
 int bit_is_free(char *array, int num);
 
+void setbit(char *array, int num, int state);
+
+void set_lower_levels(char *array, int num_pages, int num, int state);
+
+void dump_bm(char *array);
+
+void dump_pm(char *array);
+
 #endif

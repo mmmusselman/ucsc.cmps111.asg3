@@ -27,14 +27,9 @@ int meminit(long n_bytes, unsigned int flags, int parm1, int *parm2)
         default: fprintf(stderr, "invalid flag\n"); return -1;
     }
     
-    // Debug printing bullshit
-    printf("flags = %d\n", ((int *)alloc_array[curr_id])[0]);
-    printf("n_bytes = %d\n", ((int *)alloc_array[curr_id])[4]);
-    
     // Before returning, prepare the global allocator array index for the next
     // time a new allocator is requested
     ++curr_id;
-    
     // Id for each allocator is 100 + actual index in alloc_array
     return 99 + curr_id;
 }
@@ -84,8 +79,6 @@ void memfree(void *region)
             addr_diff = (long)(region) - (long)(alloc_array[argi]);
         }
     }
-    printf("alloc_id = %d\n", alloc_id);
-    printf("addr_diff = %lu\n", addr_diff);
     
     // Grab the flag and call the appropriate function for the allocator
     int flag = ((int *)alloc_array[alloc_id])[0];
@@ -99,6 +92,6 @@ void memfree(void *region)
             break;
         default: fprintf(stderr, "invalid flag\n"); 
     }
-    
+    printf("\n");
 }
 
