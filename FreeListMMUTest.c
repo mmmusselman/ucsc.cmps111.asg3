@@ -9,26 +9,53 @@
 #include"FreeListMMU.h"
 
 int main(int argc, char* argv[]) {
-	void *allocator = freelistinit(1024, 0x4|0x18);
-	printf("allocator=%d\n", allocator);
+	int i;
+	int regionSize=100;
+	int regionUserSize=regionSize-sizeof(int);
+	int numRegions=1024;
+	void *region[numRegions];
+	void *allocator = freelistinit(regionSize*numRegions, 0x4); /*100 KB initialized*/
+	printf("new freelist (first-free) allocator=%d\n", allocator);
 	printFreeList(allocator);
-	void *region1 = freelistalloc(allocator, 0x4|0x18, 512);
-	printf("region1=%d\n", region1);
+	
+	for(i=0; i<numRegions; i++) {
+		region[i]=freelistalloc(allocator, 0x4, regionUserSize);
+		printFreeList(allocator);
+	}
+	printf("Full first-free allocator has %d bytes of user storage allocated, out of a total of %d, for %d-percent efficiency\n", regionUserSize, regionSize, 100*(long)regionUserSize/(long)regionSize);
+	sleep(5);
+	printf("Freeing all regions...\n");
+	sleep(2);
+	for(i=1023; i>=0; i--) {
+		freelistfree(allocator, region[i]);
+	}
+	printf("done!\n");
+	sleep(1);
 	printFreeList(allocator);
-	void *region2 = freelistalloc(allocator, 0x4|0x18, 8);
-	printf("region2=%d\n", region2);
+	
+	sleep(3);
+	
+	allocator = freelistinit(regionSize*numRegions, 0x4|0x08); /*100 KB initialized*/
+	printf("new freelist (next-free) allocator=%d\n", allocator);
 	printFreeList(allocator);
-	void *region3 = freelistalloc(allocator, 0x4|0x18, 8);
-	printf("region3=%d\n", region3);
+	for(i=0; i<numRegions; i++) {
+		region[i]=freelistalloc(allocator, 0x4|0x08, regionUserSize);
+		printFreeList(allocator);
+	}
+	printf("Full next-free allocator has %d bytes of user storage allocated, out of a total of %d, for %d-percent efficiency\n", regionUserSize, regionSize, 100*(long)regionUserSize/(long)regionSize);
+	sleep(5);
+	printf("Freeing all regions...\n");
+	sleep(2);
+	for(i=1023; i>=0; i--) {
+		freelistfree(allocator, region[i]);
+	}
+	printf("done!\n");
+	sleep(1);
 	printFreeList(allocator);
-	printf("calling freelistfree(allocator, (int)region2)...\n");
-	freelistfree(allocator, (int)region2);
-	printFreeList(allocator);
-	printf("calling freelistfree(allocator, (int)region1)...\n");
-	freelistfree(allocator, (int)region1);
-	printFreeList(allocator);
-	printf("calling freelistfree(allocator, (int)region3)...\n");
-	freelistfree(allocator, (int)region3);
-	printFreeList(allocator);
+	
+	
+	
+	//for each: allocate all, free some, allocate more, free all, allocate random, free all
+	//after each batch of allocation, print out stats
    return(0);
 }

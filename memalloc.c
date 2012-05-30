@@ -47,6 +47,7 @@ int meminit(long n_bytes, unsigned int flags, int parm1, int *parm2)
 
 void *memalloc(int handle, long n_bytes)
 {
+	printf("handle=%d\n", handle);
     if (handle - 100 > 511 || handle - 100 < 0)
     {
         fprintf(stderr, "invalid allocator handle passed\n");
@@ -59,7 +60,6 @@ void *memalloc(int handle, long n_bytes)
         printf("alloc_array[%d] has not been initialized\n", real_id);
         return NULL;
     }
-    
     // Grab the flag and call the appropriate function for the allocator
     int flag = ((int *)alloc_array[real_id])[0];
     switch (flag)
@@ -115,3 +115,18 @@ void memfree(void *region)
     //printf("\n");
 }
 
+void *getPointer(int handle) {
+	if (handle - 100 > 511 || handle - 100 < 0)
+    {
+        fprintf(stderr, "invalid allocator handle passed\n");
+        return NULL;
+    }
+    // Convert the handle into an index recognizeable by the allocator array
+    int real_id = handle - 100;
+    if (alloc_array[real_id] == NULL)
+    {
+        printf("alloc_array[%d] has not been initialized\n", real_id);
+        return NULL;
+    }
+	return alloc_array[real_id];
+}

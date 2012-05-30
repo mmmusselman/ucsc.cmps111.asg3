@@ -250,10 +250,22 @@ void makeFree(FreeListRef L, FullNodeRef fn) {
 					cur->nextNode = (cur->nextNode)->nextNode;
 				L->numFreeNodes--;
 			}
-		} else if( fn + sizeof(FullNode) + fn->nodeSize == cur){ /*if current is immediately to the right of fullnode, merge*/
-			FreeNodeRef n = newFreeNode(sizeof(FullNode) + fn->nodeSize + sizeof(FreeNode) + cur->nodeSize, fn);
+		} else if( (int)fn + sizeof(FullNode) + fn->nodeSize == cur){ /*if current is immediately to the right of fullnode, merge*/
+			FreeNodeRef n = newFreeNode(sizeof(FullNode) + fn->nodeSize + cur->nodeSize, fn);
+			(cur->prevNode)->nextNode = n;
+			(cur->nextNode)->prevNode = n;
 			n->prevNode = cur->prevNode;
 			n->nextNode = cur->nextNode;
+			if( L->numFreeNodes==1 ){
+				L->front = L->current = n;
+			}
+		} else if( (int)fn + sizeof(FullNode) + fn->nodeSize == cur->nextNode){ /*if current's next is immediately to the right of fullnode, merge*/
+			FreeNodeRef n = newFreeNode(sizeof(FullNode) + fn->nodeSize + (cur->nextNode)->nodeSize, fn);
+			printf("cur=%d\tn=%d\n", cur, n);
+			((cur->nextNode)->prevNode)->nextNode = n;
+			((cur->nextNode)->nextNode)->prevNode = n;
+			n->prevNode = (cur->nextNode)->prevNode;
+			n->nextNode = (cur->nextNode)->nextNode;
 			if( L->numFreeNodes==1 ){
 				L->front = L->current = n;
 			}

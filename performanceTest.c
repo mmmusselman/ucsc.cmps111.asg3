@@ -5,7 +5,7 @@ int main() {
  * performanceTest Settings
  */
 	/*general settings*/
-	int numAllocators = 512;
+	int numAllocators = 1;
 	int alloc_id[numAllocators];
 	
 	/*FreeList settings*/
@@ -44,20 +44,35 @@ int main() {
 	else printf("...success! ");
 	printf("took %d seconds.\n", end-begin);
 	printf("allocating %d (maximum number) %d-byte regions from each allocator...\n", freeListNumRegions, freeListRegionSize);
+	
+	for(i=0; i<numAllocators; i++) {
+		printFreeList(getPointer(alloc_id[i]));
+	}
+	printf("alloc_id[0]=%d\n", alloc_id[0]);
+	printf("freeListNumRegions=%d\n", freeListNumRegions);
 	begin=time();
 	failed=0;
 	for(i=0; i<numAllocators; i++) {
-		for(j=0; j<freeListNumRegions; j++) {
+		for(j=0; j<23; j++) {
+			//printf("numFreeNodes=%d\n", getNumFreeNodes(alloc_id[i]));
+			printf("before: alloc_id[i]=%d\t(%d, %d)\n", alloc_id[i], i, j);
 			if(NULL == (freeListRegions[i][j] = memalloc(alloc_id[i], freeListRegionSize))) {
-				printf("Test Failed: Could not allocate %d bytes from alloc_id[%d] after %d identical allocations.\n", freeListRegionSize, i, j);
+				printf("Test Failed: Could not allocate %d bytes from alloc_id[%d]=%d after %d identical allocations.\n", freeListRegionSize, i, alloc_id[i], j);
 				failed=1;
+				exit(1);
 			}
+			printf("allocated address = %d\n", freeListRegions[i][j]);
+			printf("alloc_id[i] address = %d\n", &alloc_id[i]);
+			printf("after: alloc_id[i]=%d\t(%d, %d)\n", alloc_id[i], i, j);
 		}
 	}
 	end=time();
 	if(failed) printf("...failure! ");
 	else printf("...success! ");
 	printf("took %d seconds.\n", end-begin);
+	
+	
+	
 	printf("checking that each region is entirely zero'd out...\n");
 	begin=time();
 	failed=0;
